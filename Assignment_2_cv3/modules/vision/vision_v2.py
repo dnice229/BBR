@@ -20,11 +20,13 @@ class vision_v2():
     def filterImage(self, img, min_bgr, max_bgr):
         '''
         Input: HSV Image, 2 List of min and max HSV values
-        Output: Black White Matrix/Image
+        Output:np.asarray(cv2.GetMat(img)) Black White Matrix/Image
         '''
-        ## implement your filtering here.
-        
-       
+        img = img
+        min_scal = np.array(min_bgr)
+        max_scal = np.array(max_bgr)
+        filtered_img = cv2.inRange(img, min_scal,max_scal)
+        return filtered_img
     #Find Circle in a filtered image
     def findCircle(self,imgMat):
         '''
@@ -91,5 +93,3 @@ class vision_v2():
         Output: Signature
         '''
         return signature
-
-

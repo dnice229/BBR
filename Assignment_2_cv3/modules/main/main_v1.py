@@ -16,8 +16,10 @@ class main_v1:
         self.motion.init()
         self.tools.cSubscribe()
         img, pos = self.tools.getSnapshot()
-        name = 'test.image1.jpg'
-        self.tools.SaveImage(name, img)
+        name1 = 'test.image1.jpg'
+        name2 = 'test.image2.jpg'
+        r_img = self.vision.filterImage(img, [102,0,0], [255,153,153])
+        self.tools.SaveImage(name2, r_img)
 
         # self.tools.getSnapshot()
         self.tools.cUnsubscribe()
