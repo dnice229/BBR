@@ -2,6 +2,7 @@
 import cv2
 import numpy, math
 import numpy as np
+import tools_v3
 
 def cv2_wait():
     key = cv2.waitKey(-1) & 0xFF
@@ -24,22 +25,33 @@ class vision_v2():
         '''
         ## implement your filtering here.
         img = img
-        
+
         min_scal = np.array(min_bgr)
         max_scal = np.array(max_bgr)
 
         resultImg = cv2.inRange(img, min_scal, max_scal)
+        resultImg = cv2.blur(resultImg, (5, 5))
 
         return resultImg
 
-       
+
     #Find Circle in a filtered image
     def findCircle(self,imgMat):
         '''
         Input: Black Whit Image
         Return: List of center position of found Circle
         '''
-        if len(circles[0]) == 0: # circles == None
+        img = imgMat
+        print(img)
+        dp   = 2
+        minD = 120
+        p1 = 255
+        p2 = 27
+        minS = 8
+        maxS = 300
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, dp, minD, None, p1,
+        p2, minS, maxS)
+        if circles is None: # circles == None
             return None
         else:
             return np.reshape(circles,(circles.shape[1],circles.shape[2]))
@@ -54,7 +66,26 @@ class vision_v2():
         Input: Image
         Return: numberOfBlobsFound , [List [center-pixels] of blobs]
         '''
-        return blobsFound, blobList, imagearray
+        self.globals.setProxies()
+
+        red = np.array([33,75, 194])
+        blue = np.array([159, 59, 25])
+        green = np.array([32, 111, 44])
+        colors = [green, blue, red]
+        circles = []
+        blobList = []
+        for color in colors:
+            filteredImage = self.filterImage(image, color-25, color+25)
+            circleImage = self.findCircle(filteredImage)
+            if circleImage is not None:
+                blobList.append((circleImage[0][0], circleImage[0][1]))
+                circleImg = self.drawCircles(circleImage)
+                circles.append(circleImg)
+
+        if len(blobList) == 0:
+            return None
+        blobsFound = len(blobList)
+        return blobsFound, blobList, circles
 
     def drawCircles(self,circle_data):
         if not circle_data is None:
@@ -99,5 +130,3 @@ class vision_v2():
         Output: Signature
         '''
         return signature
-
-
