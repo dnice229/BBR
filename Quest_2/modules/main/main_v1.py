@@ -29,6 +29,8 @@ class main_v1:
             blobsFound, blobList, circles = self.vision.getBlobsData(img)
         distance = self.vision.calcAvgBlobDistance(blobList)
         print(distance)
+
+        print(self.vision.calcMidLandmark(blobList))
         # i=0
         # colors=['green', 'blue', 'red']
         # for circle in circles:

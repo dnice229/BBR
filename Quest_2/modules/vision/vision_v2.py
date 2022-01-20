@@ -92,7 +92,7 @@ class vision_v2():
             # return cv.fromarray(img)
             return img
         else:
-            print "NO CIRCLES"
+            print("NO CIRCLES")
 
 
     # Get Average Distance between multiple blobs
@@ -116,6 +116,12 @@ class vision_v2():
         Input: [Pink, Blue, Orange]
         Output: center pixel as (x,y)
         '''
+        for i in range(len(blobList)-1):
+            Ox = (blobList[i][0]+blobList[i][0]+blobList[i][0])/len(blobList)
+            Oy = (blobList[i][1]+blobList[i][1]+blobList[i][1])/len(blobList)
+
+        center = [Ox,Oy]
+
         return center
 
     # Find the angle between a found Landmark and the Nao
