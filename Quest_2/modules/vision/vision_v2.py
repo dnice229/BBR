@@ -106,16 +106,26 @@ class vision_v2():
         Distance = 0
         for i in range(len(blobList)):
             for j in range(i+1, len(blobList)):
-                Distance += np.absolute((blobList[i][0] - blobList[j][0]) + (blobList[i][1] - blobList[j][1]))
+                Distance += abs((blobList[i][0] - blobList[j][0]) + (blobList[i][1] - blobList[j][1]))
         Distance/=len(blobList)
         return Distance
 
     # Find centre of a Landmark
     def calcMidLandmark(self, blobList):
         '''
-        Input: [Pink, Blue, Orange]
+        Input: [Green, Blue, Orange]
         Output: center pixel as (x,y)
         '''
+        if len(blobList) < 2:
+            return None
+        Distance = 0
+        for i in range(len(blobList)):
+            for j in range(i+1, len(blobList)):
+                Distancex += abs(blobList[i][0] - blobList[j][0])
+                Distancey += abs(blobList[i][1] - blobList[j][1])
+        Distancex /= len(blobList)
+        Distancey /= len(blobList)
+        center = (Distancex, Distancey)
         return center
 
     # Find the angle between a found Landmark and the Nao
@@ -124,6 +134,10 @@ class vision_v2():
         Input: center pixel, (x,y)
         Output: Angle in radians
         '''
+        pixel = 0.00038
+        center_pix = (160, 120)
+        angle = abs(center[0]-center_pix[0])*pixel, abs(center[1]-center_pix[1])*pixel
+
         return angle
 
     # Find the Signature
