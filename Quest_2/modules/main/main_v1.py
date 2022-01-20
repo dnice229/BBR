@@ -22,25 +22,18 @@ class main_v1:
         # self.globals.posProxy.goToPosture('Stand', 1.0)
         img, pos = self.tools.getSnapshot()
         self.tools.SaveImage('test.image1.jpg', img)
-        # # red
-        # resultImage = self.vision.filterImage(img, red_low,red_high)
-        # circles = self.vision.findCircle(resultImage)
-        # circleImage = self.vision.drawCircles(circles)
-        # self.tools.SaveImage('redcircle.jpg', circleImage)
-        # #green
-        # resultImage = self.vision.filterImage(img, green_low,green_high)
-        # circles = self.vision.findCircle(resultImage)
-        # circleImage = self.vision.drawCircles(circles)
-        # self.tools.SaveImage('greencircle.jpg', circleImage)
+
         blobsFound, blobList, circles = self.vision.getBlobsData(img)
         while blobsFound < 3:
             img, pos = self.tools.getSnapshot()
             blobsFound, blobList, circles = self.vision.getBlobsData(img)
-        i=0
-        colors=['green', 'blue', 'red']
-        for circle in circles:
-            print(colors[i])
-            self.tools.SaveImage('blobimage'+colors[i]+'.jpg', circle)
-            i+=1
-        print(blobsFound)
+        distance = self.vision.calcAvgBlobDistance(blobList)
+        print(distance)
+        # i=0
+        # colors=['green', 'blue', 'red']
+        # for circle in circles:
+        #     print(colors[i])
+        #     self.tools.SaveImage('blobimage'+colors[i]+'.jpg', circle)
+        #     i+=1
+        # print(blobsFound)
         self.tools.cUnsubscribe()

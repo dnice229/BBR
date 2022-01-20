@@ -42,7 +42,6 @@ class vision_v2():
         Return: List of center position of found Circle
         '''
         img = imgMat
-        print(img)
         dp   = 2
         minD = 120
         p1 = 255
@@ -66,14 +65,13 @@ class vision_v2():
         Input: Image
         Return: numberOfBlobsFound , [List [center-pixels] of blobs]
         '''
-        self.globals.setProxies()
-
         red = np.array([33,75, 194])
         blue = np.array([159, 59, 25])
         green = np.array([32, 111, 44])
         colors = [green, blue, red]
         circles = []
         blobList = []
+        # Make detect circles
         for color in colors:
             filteredImage = self.filterImage(image, color-25, color+25)
             circleImage = self.findCircle(filteredImage)
@@ -81,9 +79,7 @@ class vision_v2():
                 blobList.append((circleImage[0][0], circleImage[0][1]))
                 circleImg = self.drawCircles(circleImage)
                 circles.append(circleImg)
-
-        if len(blobList) == 0:
-            return None
+        # retrieve blobs found in list
         blobsFound = len(blobList)
         return blobsFound, blobList, circles
 
@@ -102,9 +98,16 @@ class vision_v2():
     # Get Average Distance between multiple blobs
     def calcAvgBlobDistance(self, blobList):
         '''
-        Input: [Pink, Blue, Orange]
+        Input: [Green, Blue, Orange]
         Output: Avarege Distance in pixels
         '''
+        if len(blobList) < 2:
+            return None
+        Distance = 0
+        for i in range(len(blobList)):
+            for j in range(i+1, len(blobList)):
+                Distance += np.absolute((blobList[i][0] - blobList[j][0]) + (blobList[i][1] - blobList[j][1]))
+        Distance/=len(blobList)
         return Distance
 
     # Find centre of a Landmark
