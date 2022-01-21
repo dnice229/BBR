@@ -1,0 +1,8 @@
+        low_orange = np.array([0,0,0])
+        high_orange = np.array([30,57,210])
+
+        low_green = np.array([0,0,0])
+        high_green = np.array([210,120,20])
+
+       	low_blue = np.array([70,80,5])
+        high_blue = np.array([190,140,60])

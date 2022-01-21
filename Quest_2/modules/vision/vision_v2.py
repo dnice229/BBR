@@ -34,6 +34,33 @@ class vision_v2():
 
         return resultImg
 
+    def filterRectangle(self, image):
+        # image = cv2.imread('1.jpg')
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        canny = cv2.Canny(gray, 130, 255, 1)
+
+        cnts = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+        for c in cnts:
+            cv2.drawContours(image,[c], 0, (0,255,0), 2)
+
+        cv2.imshow("result", image)
+        cv2.waitKey(0)
+
+
+        # gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+        # edges = cv2.Canny(gray,50,150,apertureSize = 3)
+        # minLineLength = 100
+        # maxLineGap = 10
+        # lines = cv2.HoughLinesP(edges,1,np.pi/180,100,10,5)
+        # for x1,y1,x2,y2 in lines[0]:
+        #     cv2.line(image,(x1,y1),(x2,y2),(0,255,0),2)
+
+        # cv2.imshow('result',image)
+        # cv2.waitKey(0)
+                
+        
 
     #Find Circle in a filtered image
     def findCircle(self,imgMat):
@@ -73,7 +100,7 @@ class vision_v2():
         blobList = []
         # Make detect circles
         for color in colors:
-            filteredImage = self.filterImage(image, color-40, color+40)
+            filteredImage = self.filterImage(image, color-25, color+25)
             circleImage = self.findCircle(filteredImage)
             if circleImage is not None:
                 blobList.append((circleImage[0][0], circleImage[0][1]))
@@ -92,7 +119,7 @@ class vision_v2():
             # return cv.fromarray(img)
             return img
         else:
-            print "NO CIRCLES"
+            print("NO CIRCLES")
 
 
     # Get Average Distance between multiple blobs
@@ -107,7 +134,7 @@ class vision_v2():
         for i in range(len(blobList)):
             for j in range(i+1, len(blobList)):
                 Distance +=np.sqrt((blobList[i][0] - blobList[j][0])**2 + (blobList[i][1] - blobList[j][1])**2)
-        Distance/=len(blobList) if len(blobList) > else 1
+        Distance/=len(blobList) if len(blobList) > 2 else 1
         return Distance
 
     # Find centre of a Landmark
@@ -116,10 +143,12 @@ class vision_v2():
         Input: [Blue, green,  Orange]
         Output: center pixel as (x,y)
         '''
-        if len(blobList) < 2:
+        if len(blobList) == 0:
             return None
-
+        x=0
+        y=0
         for i in range(len(blobList)):
+            print(i)
             x += blobList[i][0]
             y += blobList[i][1]
         x /= len(blobList)
@@ -133,6 +162,7 @@ class vision_v2():
         Input: blobList
         Output: Angle in radians
         '''
+        print(blobList)
         if len(blobList) == 0:
             return None
         center = self.calcMidLandmark(blobList)
