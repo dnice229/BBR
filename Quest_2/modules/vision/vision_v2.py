@@ -107,7 +107,7 @@ class vision_v2():
         for i in range(len(blobList)):
             for j in range(i+1, len(blobList)):
                 Distance +=np.sqrt((blobList[i][0] - blobList[j][0])**2 + (blobList[i][1] - blobList[j][1])**2)
-        Distance/=len(blobList) if len(blobList) > else 1
+        Distance/=len(blobList) if len(blobList) > 2 else 1
         return Distance
 
     # Find centre of a Landmark
