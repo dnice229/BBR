@@ -3,6 +3,7 @@ import cv2
 import numpy, math
 import numpy as np
 
+
 def cv2_wait():
     key = cv2.waitKey(-1) & 0xFF
     if key==27:    # Esc key to stop
@@ -41,12 +42,12 @@ class vision_v2():
         Return: List of center position of found Circle
         '''
         img = imgMat
-        dp   = 2 # search precision
-        minD = 120 # Minimal distance between blobs; was 120
-        p1 = 255 # 
+        dp   = 2
+        minD = 120
+        p1 = 255
         p2 = 27
-        minS = 8 # minimal size blob px
-        maxS = 300 # maximal size blob px
+        minS = 8
+        maxS = 300
         circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, dp, minD, None, p1,
         p2, minS, maxS)
         if circles is None: # circles == None
@@ -72,13 +73,12 @@ class vision_v2():
         blobList = []
         # Make detect circles
         for color in colors:
-            filteredImage = self.filterImage(image, color-25, color+25)
+            filteredImage = self.filterImage(image, color-40, color+40)
             circleImage = self.findCircle(filteredImage)
             if circleImage is not None:
                 blobList.append((circleImage[0][0], circleImage[0][1]))
                 circleImg = self.drawCircles(circleImage)
                 circles.append(circleImg)
-
         # retrieve blobs found in list
         blobsFound = len(blobList)
         return blobsFound, blobList, circles
@@ -92,7 +92,7 @@ class vision_v2():
             # return cv.fromarray(img)
             return img
         else:
-            print("NO CIRCLES")
+            print "NO CIRCLES"
 
 
     # Get Average Distance between multiple blobs
@@ -107,7 +107,7 @@ class vision_v2():
         for i in range(len(blobList)):
             for j in range(i+1, len(blobList)):
                 Distance +=np.sqrt((blobList[i][0] - blobList[j][0])**2 + (blobList[i][1] - blobList[j][1])**2)
-        Distance/=len(blobList) if len(blobList) > 2 else 1
+        Distance/=len(blobList) if len(blobList) > else 1
         return Distance
 
     # Find centre of a Landmark
@@ -116,17 +116,15 @@ class vision_v2():
         Input: [Blue, green,  Orange]
         Output: center pixel as (x,y)
         '''
-        if len(blobList) == 0:
+        if len(blobList) < 2:
             return None
-        x = 0
-        y = 0
 
-        for i in range(len(blobList)):                                                                          # IMPORTANT CHANGE: calc center from averages
+        for i in range(len(blobList)):
             x += blobList[i][0]
             y += blobList[i][1]
         x /= len(blobList)
         y /= len(blobList)
-        center = (x,y)
+        center = (x, y)
         return center
 
     # Find the angle between a found Landmark and the Nao
