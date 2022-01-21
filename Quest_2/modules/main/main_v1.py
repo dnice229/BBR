@@ -21,21 +21,21 @@ class main_v1:
         self.tools.cSubscribe()
         # self.globals.posProxy.goToPosture('Stand', 1.0)
         img, pos = self.tools.getSnapshot()
-        self.tools.SaveImage('test.image1.jpg', img)
+        
 
         blobsFound, blobList, circles = self.vision.getBlobsData(img)
         while blobsFound < 3:
             img, pos = self.tools.getSnapshot()
+            self.tools.SaveImage('test.image1.jpg', img)
             blobsFound, blobList, circles = self.vision.getBlobsData(img)
+            self.tools.SaveImage('imagecircles.jpg', sum(circles))
         distance = self.vision.calcAvgBlobDistance(blobList)
-        print(distance)
 
-        print(self.vision.calcMidLandmark(blobList))
-        # i=0
-        # colors=['green', 'blue', 'red']
-        # for circle in circles:
-        #     print(colors[i])
-        #     self.tools.SaveImage('blobimage'+colors[i]+'.jpg', circle)
-        #     i+=1
-        # print(blobsFound)
+        
+        
+        
+        center = self.vision.calcMidLandmark(blobList)
+
+        print(self.vision.findSignature(blobList))
+
         self.tools.cUnsubscribe()

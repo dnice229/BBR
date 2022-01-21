@@ -2,7 +2,6 @@
 import cv2
 import numpy, math
 import numpy as np
-import tools_v3
 
 def cv2_wait():
     key = cv2.waitKey(-1) & 0xFF
@@ -30,7 +29,7 @@ class vision_v2():
         max_scal = np.array(max_bgr)
 
         resultImg = cv2.inRange(img, min_scal, max_scal)
-        resultImg = cv2.blur(resultImg, (5, 5))
+        resultImg = cv2.blur(resultImg, (3, 3))
 
         return resultImg
 
@@ -42,12 +41,12 @@ class vision_v2():
         Return: List of center position of found Circle
         '''
         img = imgMat
-        dp   = 2
-        minD = 120
-        p1 = 255
+        dp   = 2 # search precision
+        minD = 120 # Minimal distance between blobs; was 120
+        p1 = 255 # 
         p2 = 27
-        minS = 8
-        maxS = 300
+        minS = 8 # minimal size blob px
+        maxS = 300 # maximal size blob px
         circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, dp, minD, None, p1,
         p2, minS, maxS)
         if circles is None: # circles == None
@@ -68,7 +67,7 @@ class vision_v2():
         red = np.array([33,75, 194])
         blue = np.array([159, 59, 25])
         green = np.array([32, 111, 44])
-        colors = [green, blue, red]
+        colors = [blue, green, red]
         circles = []
         blobList = []
         # Make detect circles
@@ -79,6 +78,7 @@ class vision_v2():
                 blobList.append((circleImage[0][0], circleImage[0][1]))
                 circleImg = self.drawCircles(circleImage)
                 circles.append(circleImg)
+
         # retrieve blobs found in list
         blobsFound = len(blobList)
         return blobsFound, blobList, circles
@@ -106,22 +106,28 @@ class vision_v2():
         Distance = 0
         for i in range(len(blobList)):
             for j in range(i+1, len(blobList)):
-                Distance += np.absolute((blobList[i][0] - blobList[j][0]) + (blobList[i][1] - blobList[j][1]))
+                Distance += abs((blobList[i][0] - blobList[j][0]) + (blobList[i][1] - blobList[j][1]))
         Distance/=len(blobList)
         return Distance
 
     # Find centre of a Landmark
     def calcMidLandmark(self, blobList):
         '''
-        Input: [Pink, Blue, Orange]
+        Input: [Green, Blue, Orange]
         Output: center pixel as (x,y)
         '''
-        for i in range(len(blobList)-1):
-            Ox = (blobList[i][0]+blobList[i][0]+blobList[i][0])/len(blobList)
-            Oy = (blobList[i][1]+blobList[i][1]+blobList[i][1])/len(blobList)
-
-        center = [Ox,Oy]
-
+        if len(blobList) < 2:
+            return None
+        Distance = 0
+        Distancex = 0
+        Distancey = 0
+        for i in range(len(blobList)):
+            for j in range(i+1, len(blobList)):
+                Distancex += abs(blobList[i][0] - blobList[j][0])
+                Distancey += abs(blobList[i][1] - blobList[j][1])
+        Distancex /= len(blobList)
+        Distancey /= len(blobList)
+        center = (Distancex, Distancey)
         return center
 
     # Find the angle between a found Landmark and the Nao
@@ -130,6 +136,11 @@ class vision_v2():
         Input: center pixel, (x,y)
         Output: Angle in radians
         '''
+        pixel = 0.00038
+        center_pix = (160, 120)
+        ctr_shift = abs(center[0]-center_pix[0]) + abs(center[1]-center_pix[1])
+        angle = ctr_shift * pixel
+
         return angle
 
     # Find the Signature
@@ -138,4 +149,13 @@ class vision_v2():
         Input: [Pink, Blue, Orange]
         Output: Signature
         '''
+        if blobList[0][1] > blobList[1][1] and blobList[0][1] > blobList[2][1]:
+            signature = "back"
+        if blobList[0][1] < blobList[1][1] and blobList[0][1] < blobList[2][1]:
+            signature = "finish"
+        if blobList[0][0] > blobList[1][0] and blobList[0][0] > blobList[2][0]:
+            signature = "right"
+        if blobList[0][0] < blobList[1][0] and blobList[0][0] < blobList[2][0]:
+            signature = "left"
+
         return signature
