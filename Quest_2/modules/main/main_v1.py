@@ -57,5 +57,5 @@ class main_v1:
         #     i+=1
         # print(blobsFound)
 
-        self.globals.posProxy.goToPosture('Sit', 1.0)
+        self.globals.posProxy.goToPosture('SitRelax', 1.0)
         self.tools.cUnsubscribe()
