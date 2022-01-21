@@ -85,7 +85,7 @@ class vision_v2():
 
     def drawCircles(self,circle_data):
         if not circle_data is None:
-            img = np.zeros((320,400,3), np.uint8)
+            img = np.zeros((240,300,3), np.uint8)
             for i in circle_data:
                 if not i is None:
                     cv2.circle(img,(i[0],i[1]),i[2],(255,255,255),-1)
@@ -106,56 +106,61 @@ class vision_v2():
         Distance = 0
         for i in range(len(blobList)):
             for j in range(i+1, len(blobList)):
-                Distance += abs((blobList[i][0] - blobList[j][0]) + (blobList[i][1] - blobList[j][1]))
-        Distance/=len(blobList)
+                Distance +=np.sqrt((blobList[i][0] - blobList[j][0])**2 + (blobList[i][1] - blobList[j][1])**2)
+        Distance/=len(blobList) if len(blobList) > 2 else 1
         return Distance
 
     # Find centre of a Landmark
     def calcMidLandmark(self, blobList):
         '''
-        Input: [Green, Blue, Orange]
+        Input: [Blue, green,  Orange]
         Output: center pixel as (x,y)
         '''
-        if len(blobList) < 2:
+        if len(blobList) == 0:
             return None
-        Distance = 0
-        Distancex = 0
-        Distancey = 0
-        for i in range(len(blobList)):
-            for j in range(i+1, len(blobList)):
-                Distancex += abs(blobList[i][0] - blobList[j][0])
-                Distancey += abs(blobList[i][1] - blobList[j][1])
-        Distancex /= len(blobList)
-        Distancey /= len(blobList)
-        center = (Distancex, Distancey)
+        x = 0
+        y = 0
+
+        for i in range(len(blobList)):                                                                          # IMPORTANT CHANGE: calc center from averages
+            x += blobList[i][0]
+            y += blobList[i][1]
+        x /= len(blobList)
+        y /= len(blobList)
+        center = (x,y)
         return center
 
     # Find the angle between a found Landmark and the Nao
-    def calcAngleLandmark(self, center):
+    def calcAngleLandmark(self, blobList):
         '''
-        Input: center pixel, (x,y)
+        Input: blobList
         Output: Angle in radians
         '''
+        if len(blobList) == 0:
+            return None
+        center = self.calcMidLandmark(blobList)
         pixel = 0.00038
         center_pix = (160, 120)
-        ctr_shift = abs(center[0]-center_pix[0]) + abs(center[1]-center_pix[1])
-        angle = ctr_shift * pixel
-
+        ctr_shift = (center[0]-center_pix[0]) + (center[1]-center_pix[1])
+        angle =  ctr_shift * pixel
         return angle
 
     # Find the Signature
     def findSignature(self,blobList):
         '''
-        Input: [Pink, Blue, Orange]
+        Input: [Blue, Green, Orange]
         Output: Signature
         '''
-        if blobList[0][1] > blobList[1][1] and blobList[0][1] > blobList[2][1]:
-            signature = "back"
-        if blobList[0][1] < blobList[1][1] and blobList[0][1] < blobList[2][1]:
-            signature = "finish"
-        if blobList[0][0] > blobList[1][0] and blobList[0][0] > blobList[2][0]:
-            signature = "right"
-        if blobList[0][0] < blobList[1][0] and blobList[0][0] < blobList[2][0]:
-            signature = "left"
-
+        if blobList is None:
+            return -1
+        xy_Blue = blobList[0]
+        xy_Green = blobList[1]
+        xy_Red = blobList[2]
+        if xy_Blue[1] > xy_Green[1] and xy_Blue[1] > xy_Red[1]:
+            signature = 'Finish'
+        if xy_Blue[0] > xy_Green[0] and xy_Blue[0] > xy_Red[0]:
+            signature = 'Right'
+        if xy_Blue[0] < xy_Green[0] and xy_Blue[0] < xy_Red[0]:
+            signature = 'Left'
+        if xy_Blue[1] < xy_Green[1] and xy_Blue[1] < xy_Red[1]:
+            signature = 'Back'
         return signature
