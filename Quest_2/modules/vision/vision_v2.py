@@ -2,7 +2,7 @@
 import cv2
 import numpy, math
 import numpy as np
-import tools_v3
+
 
 def cv2_wait():
     key = cv2.waitKey(-1) & 0xFF
@@ -30,7 +30,7 @@ class vision_v2():
         max_scal = np.array(max_bgr)
 
         resultImg = cv2.inRange(img, min_scal, max_scal)
-        resultImg = cv2.blur(resultImg, (5, 5))
+        resultImg = cv2.blur(resultImg, (3, 3))
 
         return resultImg
 
@@ -68,12 +68,12 @@ class vision_v2():
         red = np.array([33,75, 194])
         blue = np.array([159, 59, 25])
         green = np.array([32, 111, 44])
-        colors = [green, blue, red]
+        colors = [blue, green, red]
         circles = []
         blobList = []
         # Make detect circles
         for color in colors:
-            filteredImage = self.filterImage(image, color-25, color+25)
+            filteredImage = self.filterImage(image, color-40, color+40)
             circleImage = self.findCircle(filteredImage)
             if circleImage is not None:
                 blobList.append((circleImage[0][0], circleImage[0][1]))
@@ -85,7 +85,7 @@ class vision_v2():
 
     def drawCircles(self,circle_data):
         if not circle_data is None:
-            img = np.zeros((320,400,3), np.uint8)
+            img = np.zeros((240,300,3), np.uint8)
             for i in circle_data:
                 if not i is None:
                     cv2.circle(img,(i[0],i[1]),i[2],(255,255,255),-1)
@@ -106,44 +106,59 @@ class vision_v2():
         Distance = 0
         for i in range(len(blobList)):
             for j in range(i+1, len(blobList)):
-                Distance += abs((blobList[i][0] - blobList[j][0]) + (blobList[i][1] - blobList[j][1]))
-        Distance/=len(blobList)
+                Distance +=np.sqrt((blobList[i][0] - blobList[j][0])**2 + (blobList[i][1] - blobList[j][1])**2)
+        Distance/=len(blobList) if len(blobList) > else 1
         return Distance
 
     # Find centre of a Landmark
     def calcMidLandmark(self, blobList):
         '''
-        Input: [Green, Blue, Orange]
+        Input: [Blue, green,  Orange]
         Output: center pixel as (x,y)
         '''
         if len(blobList) < 2:
             return None
-        Distance = 0
+
         for i in range(len(blobList)):
-            for j in range(i+1, len(blobList)):
-                Distancex += abs(blobList[i][0] - blobList[j][0])
-                Distancey += abs(blobList[i][1] - blobList[j][1])
-        Distancex /= len(blobList)
-        Distancey /= len(blobList)
-        center = (Distancex, Distancey)
+            x += blobList[i][0]
+            y += blobList[i][1]
+        x /= len(blobList)
+        y /= len(blobList)
+        center = (x, y)
         return center
 
     # Find the angle between a found Landmark and the Nao
-    def calcAngleLandmark(self, center):
+    def calcAngleLandmark(self, blobList):
         '''
-        Input: center pixel, (x,y)
+        Input: blobList
         Output: Angle in radians
         '''
+        if len(blobList) == 0:
+            return None
+        center = self.calcMidLandmark(blobList)
         pixel = 0.00038
         center_pix = (160, 120)
-        angle = abs(center[0]-center_pix[0])*pixel, abs(center[1]-center_pix[1])*pixel
-
+        ctr_shift = (center[0]-center_pix[0]) + (center[1]-center_pix[1])
+        angle =  ctr_shift * pixel
         return angle
 
     # Find the Signature
     def findSignature(self,blobList):
         '''
-        Input: [Pink, Blue, Orange]
+        Input: [Blue, Green, Orange]
         Output: Signature
         '''
+        if blobList is None:
+            return -1
+        xy_Blue = blobList[0]
+        xy_Green = blobList[1]
+        xy_Red = blobList[2]
+        if xy_Blue[1] > xy_Green[1] and xy_Blue[1] > xy_Red[1]:
+            signature = 'Finish'
+        if xy_Blue[0] > xy_Green[0] and xy_Blue[0] > xy_Red[0]:
+            signature = 'Right'
+        if xy_Blue[0] < xy_Green[0] and xy_Blue[0] < xy_Red[0]:
+            signature = 'Left'
+        if xy_Blue[1] < xy_Green[1] and xy_Blue[1] < xy_Red[1]:
+            signature = 'Back'
         return signature
