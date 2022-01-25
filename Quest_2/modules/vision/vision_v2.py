@@ -2,7 +2,7 @@
 import cv2
 import numpy, math
 import numpy as np
-
+import imutils
 
 def cv2_wait():
     key = cv2.waitKey(-1) & 0xFF
@@ -30,37 +30,46 @@ class vision_v2():
         max_scal = np.array(max_bgr)
 
         resultImg = cv2.inRange(img, min_scal, max_scal)
-        resultImg = cv2.blur(resultImg, (3, 3))
+        resultImg = cv2.blur(resultImg, (2, 2))
 
         return resultImg
 
-    def filterRectangle(self, image):
-        # image = cv2.imread('1.jpg')
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        canny = cv2.Canny(gray, 130, 255, 1)
+    # Find square in a filtered image
+    def findsquare(self,imgMat):
+        '''
+        Input: Black Whit Image
+        Return: List of center position of found Circle
+        '''
+        image = imgMat
+        ## make image greyscale, blur, find edges
+        grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        cnts = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-
+        thresh = cv2.adaptiveThreshold(grayscale_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                 cv2.THRESH_BINARY,23, 2)# find contours in the threshed image, keep only the larges
+        # ones
+        cnts = cv2.findContours(thresh.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = imutils.grab_contours(cnts)
+        cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
         for c in cnts:
-            cv2.drawContours(image,[c], 0, (0,255,0), 2)
+            # approximate the contour
+            peri = cv2.arcLength(c, True)
+            approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+            # if our approximated contour has four points, then we
+            # can assume that we have found our screen
+            if len(approx) > 3 and len(approx) < 7:
+                screenCnt = approx
+                print screenCnt
+                print type(screenCnt)
+                break
+        # draw contours for reference
+        cv2.drawContours(image, screenCnt, -1, (0, 255, 0), 3)
 
-        cv2.imshow("result", image)
-        cv2.waitKey(0)
-
-
-        # gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-        # edges = cv2.Canny(gray,50,150,apertureSize = 3)
-        # minLineLength = 100
-        # maxLineGap = 10
-        # lines = cv2.HoughLinesP(edges,1,np.pi/180,100,10,5)
-        # for x1,y1,x2,y2 in lines[0]:
-        #     cv2.line(image,(x1,y1),(x2,y2),(0,255,0),2)
-
-        # cv2.imshow('result',image)
-        # cv2.waitKey(0)
-                
-        
+        min_x = np.min(screenCnt[:, :, 0])
+        max_x = np.max(screenCnt[:, :, 0])
+        min_y = np.min(screenCnt[:, :, 1])
+        max_y = np.max(screenCnt[:, :, 1])
+        img_cropped = image[min_y:max_y, min_x:max_x]
+        return img_cropped
 
     #Find Circle in a filtered image
     def findCircle(self,imgMat):
@@ -100,7 +109,7 @@ class vision_v2():
         blobList = []
         # Make detect circles
         for color in colors:
-            filteredImage = self.filterImage(image, color-25, color+25)
+            filteredImage = self.filterImage(image, color-60, color+60)
             circleImage = self.findCircle(filteredImage)
             if circleImage is not None:
                 blobList.append((circleImage[0][0], circleImage[0][1]))
@@ -119,7 +128,7 @@ class vision_v2():
             # return cv.fromarray(img)
             return img
         else:
-            print("NO CIRCLES")
+            print "NO CIRCLES"
 
 
     # Get Average Distance between multiple blobs

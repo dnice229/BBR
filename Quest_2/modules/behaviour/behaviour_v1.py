@@ -1,12 +1,12 @@
-class behaviour_v1():    
+class behaviour_v1():
     globals = None
 
     def setDependencies(self, modules):
         self.globals = modules.getModule("globals")
         self.motion = modules.getModule("motion")
-        
-        
-    #React to found observations  
+
+
+    #React to found observations
     def calcDirection(self, blobsFound, blobDist, angle, signature):
         '''
         Input: Stuff
