@@ -35,7 +35,8 @@ class vision_v2():
         return resultImg
 
     # Find square in a filtered image
-    def findSquare(self,imgMat):
+    # Find square in a filtered image
+    def findsquare(self,imgMat):
         '''
         Input: Infiltered image matrix
         Return: Masked background and unmasked paper
@@ -70,7 +71,7 @@ class vision_v2():
         max_x = np.max(screenCnt[:, :, 0])
         min_y = np.min(screenCnt[:, :, 1])
         max_y = np.max(screenCnt[:, :, 1])
-        
+
 
         for x in range(0,320):
             for y in range(0,240):
@@ -78,7 +79,7 @@ class vision_v2():
                     pass
                 else:
                     image[y][x] = [0,0,0]
-        
+
         return image
 
     #Find Circle in a filtered image
@@ -112,7 +113,7 @@ class vision_v2():
         Return: numberOfBlobsFound , [List [center-pixels] of blobs]
         '''
         red = np.array([33,75, 194])
-        blue = np.array([159, 59, 26])
+        blue = np.array([159, 59, 25])
         green = np.array([32, 111, 44])
         colors = [blue, green, red]
         circles = []
@@ -131,14 +132,14 @@ class vision_v2():
 
     def drawCircles(self,circle_data):
         if not circle_data is None:
-            img = np.zeros((240,320,3), np.uint8)
+            img = np.zeros((240,300,3), np.uint8)
             for i in circle_data:
                 if not i is None:
                     cv2.circle(img,(i[0],i[1]),i[2],(255,255,255),-1)
             # return cv.fromarray(img)
             return img
         else:
-            print("NO CIRCLES")
+            print "NO CIRCLES"
 
 
     # Get Average Distance between multiple blobs

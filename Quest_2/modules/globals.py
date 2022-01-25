@@ -34,5 +34,5 @@ class globals:
 
 
         #Uncomment to access sonars
-        #self.sonarProxy = ALProxy("ALSonar", self.ipadress, 9559)
-        #self.memoryProxy = ALProxy("ALMemory", self.ipadress, 9559)
+        self.sonarProxy = ALProxy("ALSonar", self.ipadress, 9559)
+        self.memoryProxy = ALProxy("ALMemory", self.ipadress, 9559)
