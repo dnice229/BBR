@@ -21,20 +21,20 @@ class main_v1:
         self.motion.init()
         self.tools.cSubscribe()
         # self.globals.posProxy.goToPosture('Stand', 1.0)
-        img, pos = self.tools.getSnapshot()
-        self.tools.SaveImage('testimage2.jpg', img)
-        img = self.vision.findsquare(img)
-        self.tools.SaveImage('testimage3.jpg', img)
+        
+
+        #
+        blobsFound = 0
+
+        while blobsFound < 10:
+            raw_img, pos = self.tools.getSnapshot()
+            self.tools.SaveImage('1_raw_img.jpg', raw_img)
+            cut_img = self.vision.findSquare(raw_img)
+            self.tools.SaveImage('2_cut_img.jpg', cut_img)
+            blobsFound, blobList, circles = self.vision.getBlobsData(cut_img)           
+            self.tools.SaveImage('3_blob_img.jpg', sum(circles))
 
 
-
-
-        blobsFound, blobList, circles = self.vision.getBlobsData(img)
-        self.tools.SaveImage('blobimage9.jpg', sum(circles))
-
-        while blobsFound < 3:
-            img, pos = self.tools.getSnapshot()
-            blobsFound, blobList, circles = self.vision.getBlobsData(img)
             print(blobsFound)
 
         blobDist = self.vision.calcAvgBlobDistance(blobList)

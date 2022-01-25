@@ -35,19 +35,22 @@ class vision_v2():
         return resultImg
 
     # Find square in a filtered image
-    def findsquare(self,imgMat):
+    def findSquare(self,imgMat):
         '''
-        Input: Black Whit Image
-        Return: List of center position of found Circle
+        Input: Infiltered image matrix
+        Return: Masked background and unmasked paper
         '''
         image = imgMat
-        ## make image greyscale, blur, find edges
+        screenCnt = None
+        found = False
+        # make image greyscale, blur, find edges
         grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        thresh = cv2.adaptiveThreshold(grayscale_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
-        thresh = cv2.adaptiveThreshold(grayscale_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                 cv2.THRESH_BINARY,23, 2)# find contours in the threshed image, keep only the larges
+        # find contours in the threshed image, keep only the largest
         # ones
-        cnts = cv2.findContours(thresh.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cv2.findContours(
+            thresh.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
         cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
         for c in cnts:
@@ -58,18 +61,25 @@ class vision_v2():
             # can assume that we have found our screen
             if len(approx) > 3 and len(approx) < 7:
                 screenCnt = approx
-                print screenCnt
-                print type(screenCnt)
+                found = True
                 break
-        # draw contours for reference
-        cv2.drawContours(image, screenCnt, -1, (0, 255, 0), 3)
-
+        if not found:
+            return image
+        #
         min_x = np.min(screenCnt[:, :, 0])
         max_x = np.max(screenCnt[:, :, 0])
         min_y = np.min(screenCnt[:, :, 1])
         max_y = np.max(screenCnt[:, :, 1])
-        img_cropped = image[min_y:max_y, min_x:max_x]
-        return img_cropped
+        
+
+        for x in range(0,320):
+            for y in range(0,240):
+                if min_x <= x <= max_x and min_y <= y <= max_y:
+                    pass
+                else:
+                    image[y][x] = [0,0,0]
+        
+        return image
 
     #Find Circle in a filtered image
     def findCircle(self,imgMat):
@@ -82,7 +92,7 @@ class vision_v2():
         minD = 120
         p1 = 255
         p2 = 27
-        minS = 8
+        minS = 2
         maxS = 300
         circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, dp, minD, None, p1,
         p2, minS, maxS)
@@ -102,14 +112,14 @@ class vision_v2():
         Return: numberOfBlobsFound , [List [center-pixels] of blobs]
         '''
         red = np.array([33,75, 194])
-        blue = np.array([159, 59, 25])
+        blue = np.array([159, 59, 26])
         green = np.array([32, 111, 44])
         colors = [blue, green, red]
         circles = []
         blobList = []
         # Make detect circles
         for color in colors:
-            filteredImage = self.filterImage(image, color-60, color+60)
+            filteredImage = self.filterImage(image, color-25, color+25)
             circleImage = self.findCircle(filteredImage)
             if circleImage is not None:
                 blobList.append((circleImage[0][0], circleImage[0][1]))
@@ -121,14 +131,14 @@ class vision_v2():
 
     def drawCircles(self,circle_data):
         if not circle_data is None:
-            img = np.zeros((240,300,3), np.uint8)
+            img = np.zeros((240,320,3), np.uint8)
             for i in circle_data:
                 if not i is None:
                     cv2.circle(img,(i[0],i[1]),i[2],(255,255,255),-1)
             # return cv.fromarray(img)
             return img
         else:
-            print "NO CIRCLES"
+            print("NO CIRCLES")
 
 
     # Get Average Distance between multiple blobs
