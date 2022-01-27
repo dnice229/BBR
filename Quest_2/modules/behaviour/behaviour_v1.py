@@ -44,9 +44,9 @@ class behaviour_v1():
 
     def lookAround(self):
         self.tools.cSubscribe()
-        for yaw in range(0,10):
-            print("yaw: "+str(yaw*0.1))
-            self.motion.setHead(yaw*0.1,-4.5)
+        for yaw in [x * 0.1 for x in range(0, 10)]:
+            print("yaw: "+str(yaw))
+            self.motion.setHead(yaw,-4.5)
             time.sleep(0.5)
             img, pos = self.tools.getSnapshot()
             self.tools.SaveImage("pitch.jpg",img)
