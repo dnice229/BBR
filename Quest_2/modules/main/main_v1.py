@@ -16,22 +16,35 @@ class main_v1:
     def start(self):
         self.globals.setProxies()
         self.motion.init()
+        # self.globals.posProxy.goToPosture('Stand', 1.0)
         self.tools.cSubscribe()
-        # # self.globals.posProxy.goToPosture('Stand', 1.0)
-        # blobsFound = 0
+        safe =True
+        finished = False
+        # if not reached end of maze
+        while not finished:
+            # check safe to move forward
+            if safe:
+                # move forward
+                self.behaviour.wander()
+                # check for landmarks
+                blobsFound=0
+                while blobsFound != 3 :
+                    img, pos = self.tools.getSnapshot()
+                    img = self.vision.findsquare(img)
+                    blobsFound, blobList, circles = self.vision.getBlobsData(img)
+                #navigate based on landmarks
+                blobDist = self.vision.calcAvgBlobDistance(blobList)
+                center = self.vision.calcMidLandmark(blobList)
+                angle = self.vision.calcAngleLandmark(blobList)
+                signature  = self.vision.findSignature(blobList)
+                turn, walk, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
+                #if we have reached a border turn according to calc direction
+                if not walk:
+                    self.behaviour.turn(turn)
 
-        # while blobsFound != 3 :
-        #     img, pos = self.tools.getSnapshot()
-        #     img = self.vision.findsquare(img)
-        #     blobsFound, blobList, circles = self.vision.getBlobsData(img)
+            safe = self.behaviour.avoid()
 
-        # blobDist = self.vision.calcAvgBlobDistance(blobList)
-        # center = self.vision.calcMidLandmark(blobList)
-        # angle = self.vision.calcAngleLandmark(blobList)
-        # signature  = self.vision.findSignature(blobList)
-        # turn, walk = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
 
-        # self.behaviour.avoid()
 
        
 

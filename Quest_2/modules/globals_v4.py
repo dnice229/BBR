@@ -27,6 +27,7 @@ class globals_v4:
 	
 	
         # self.motProxy = ALProxy("ALMotion", self.ipadress, 9559)
+#        self.motProxy = ALProxy("ALMotion", self.ipadress, 9559)
 #        self.posProxy = ALProxy("ALRobotPosture", self.ipadress, 9559)
 #        self.vidProxy = ALProxy("ALVideoDevice", self.ipadress, 9559)
    

@@ -1,4 +1,5 @@
 import time
+import math
 
 class motion_v4():    
     globals = None

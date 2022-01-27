@@ -32,7 +32,6 @@ class vision_v2():
         resultImg = cv2.inRange(img, min_scal, max_scal)
         resultImg = cv2.blur(resultImg, (2, 2))
 
-
         return resultImg
 
     # Find square in a filtered image
@@ -42,15 +41,15 @@ class vision_v2():
         Input: Infiltered image matrix
         Return: Masked background and unmasked paper
         '''
-        # Set variables
         image = imgMat
         screenCnt = None
         found = False
         # make image greyscale, blur, find edges
         grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        proc = cv2.GaussianBlur(grayscale_image.copy(), (9, 9), 0)    
-        thresh = cv2.adaptiveThreshold(proc, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-        # find contours in the threshed image, keep only the largest ones
+        thresh = cv2.adaptiveThreshold(grayscale_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+
+        # find contours in the threshed image, keep only the largest
+        # ones
         cnts = cv2.findContours(
             thresh.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
@@ -65,15 +64,15 @@ class vision_v2():
                 screenCnt = approx
                 found = True
                 break
-        # In case no rectangle is found retrun the starter image
         if not found:
             return image
-        # Calculate cut-out
+        #
         min_x = np.min(screenCnt[:, :, 0])
         max_x = np.max(screenCnt[:, :, 0])
         min_y = np.min(screenCnt[:, :, 1])
         max_y = np.max(screenCnt[:, :, 1])
-        # Cutout the square
+
+
         for x in range(0,320):
             for y in range(0,240):
                 if min_x <= x <= max_x and min_y <= y <= max_y:
@@ -105,6 +104,7 @@ class vision_v2():
 
     def in_range_bgr(self,img,bgr_low,bgr_high):
         return cv2.inRange(img, np.array(bgr_low), np.array(bgr_high))
+
 
     # Proces image to detect color blobs
     def getBlobsData(self, image):
@@ -139,7 +139,7 @@ class vision_v2():
             # return cv.fromarray(img)
             return img
         else:
-            print("NO CIRCLES")
+            print "NO CIRCLES"
 
 
     # Get Average Distance between multiple blobs
@@ -168,6 +168,7 @@ class vision_v2():
         x=0
         y=0
         for i in range(len(blobList)):
+            print(i)
             x += blobList[i][0]
             y += blobList[i][1]
         x /= len(blobList)
@@ -181,6 +182,7 @@ class vision_v2():
         Input: blobList
         Output: Angle in radians
         '''
+        print(blobList)
         if len(blobList) == 0:
             return None
         center = self.calcMidLandmark(blobList)
