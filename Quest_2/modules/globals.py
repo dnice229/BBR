@@ -23,12 +23,13 @@ class globals:
         self.motProxy = self.session.service("ALMotion")
         self.posProxy = self.session.service("ALRobotPosture")
         self.vidProxy = self.session.service("ALVideoDevice")
+        self.lifeProxy = self.session.service("ALAutonomousLife")
+        self.speechProxy = self.session.service("ALTextToSpeech")
 
-
-        self.motProxy = ALProxy("ALMotion", self.ipadress, 9559)
-        self.posProxy = ALProxy("ALRobotPosture", self.ipadress, 9559)
-        self.vidProxy = ALProxy("ALVideoDevice", self.ipadress, 9559)
-
+        # self.motProxy = ALProxy("ALMotion", self.ipadress, 9559)
+        # self.posProxy = ALProxy("ALRobotPosture", self.ipadress, 9559)
+        # self.vidProxy = ALProxy("ALVideoDevice", self.ipadress, 9559)
+        # self.speechProxy = ALProxy("ALTextToSpeech", self.ipaddress, 9559)
 
         # Subscribe to sonars, this will launch sonars (at hardware level) and start data acquisition.
 
