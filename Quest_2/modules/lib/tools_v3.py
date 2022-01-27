@@ -28,7 +28,7 @@ class tools_v3():
     #subscribe to camera
     def cSubscribe(self, resolution=1):
         """ Subscribe to the camera feed. """
-        print "Subscribing to video service-----------------------------------"
+        print("Subscribing to video service-----------------------------------")
 
         self.globals.vidProxy.setParam(18,1)
         # subscribe(gvmName, resolution={0,1,2}, colorSpace={0,9,10,rgb=11,hsy=12,bgr=13}, fps={5,10,15,30}
@@ -46,9 +46,9 @@ class tools_v3():
         """ Try to unsubscribe from the camera """
         try:
             self.globals.vidProxy.unsubscribe(self.video_client)
-            print "Unsubscribing from video service-----------------------------------"
+            print("Unsubscribing from video service-----------------------------------")
         except Exception as inst:
-            print "Unsubscribing impossible:", inst
+            print("Unsubscribing impossible:", inst)
 
 
     # get snapshot from camera
@@ -87,7 +87,7 @@ class tools_v3():
         return dstImage
 
     def SaveImage(self, name, img):
-        print "Saving image", name
+        #print("Saving image", name)
         cv2.imwrite(name, img)	
     
     def minimizedAngle( angle ):

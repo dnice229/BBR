@@ -16,20 +16,31 @@ class main_v1:
     def start(self):
         self.globals.setProxies()
         self.motion.init()
-        # self.globals.posProxy.goToPosture('Stand', 1.0)
-        blobsFound = 0
+        self.tools.cSubscribe()
+        # # self.globals.posProxy.goToPosture('Stand', 1.0)
+        # blobsFound = 0
 
-        while blobsFound != 3 :
-            img, pos = self.tools.getSnapshot()
-            img = self.vision.findsquare(img)
-            blobsFound, blobList, circles = self.vision.getBlobsData(img)
+        # while blobsFound != 3 :
+        #     img, pos = self.tools.getSnapshot()
+        #     img = self.vision.findsquare(img)
+        #     blobsFound, blobList, circles = self.vision.getBlobsData(img)
 
-        blobDist = self.vision.calcAvgBlobDistance(blobList)
-        center = self.vision.calcMidLandmark(blobList)
-        angle = self.vision.calcAngleLandmark(blobList)
-        signature  = self.vision.findSignature(blobList)
-        turn, walk = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
+        # blobDist = self.vision.calcAvgBlobDistance(blobList)
+        # center = self.vision.calcMidLandmark(blobList)
+        # angle = self.vision.calcAngleLandmark(blobList)
+        # signature  = self.vision.findSignature(blobList)
+        # turn, walk = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
 
-        self.behaviour.avoid()
+        # self.behaviour.avoid()
 
-        self.tools.cUnsubscribe()
+       
+
+        self.globals.motProxy.wakeUp()
+        
+
+       
+        self.behaviour.lookAround()
+
+
+        self.globals.motProxy.rest()
+        # self.tools.cUnsubscribe()
