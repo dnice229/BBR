@@ -8,7 +8,7 @@ from naoqi import qi
 import sys
 
 class globals_v4:
-    ipadress = "146.50.60.32"
+    ipadress = "146.50.60.19"
     port = "9559"
 
     def setDependencies(self, modules):
@@ -26,7 +26,6 @@ class globals_v4:
         self.vidProxy = self.session.service("ALVideoDevice")	
 	
 	
-        # self.motProxy = ALProxy("ALMotion", self.ipadress, 9559)
 #        self.motProxy = ALProxy("ALMotion", self.ipadress, 9559)
 #        self.posProxy = ALProxy("ALRobotPosture", self.ipadress, 9559)
 #        self.vidProxy = ALProxy("ALVideoDevice", self.ipadress, 9559)

@@ -1,5 +1,4 @@
 import time
-import math
 
 class motion_v4():    
     globals = None
@@ -26,7 +25,7 @@ class motion_v4():
         try:
             self.globals.motProxy.setFallManagerEnabled(arg)
         except:
-            print('Could not switch off FallManager. ')
+            print 'Could not switch off FallManager. '
             
     """Deactivate all Autonomous abilities, except BackgroundMovement"""
     def setBackgroundMovement(self, arg):
@@ -34,7 +33,7 @@ class motion_v4():
             self.globals.lifeProxy.setAutonomousAbilityEnabled("All",False)
             self.globals.lifeProxy.setAutonomousAbilityEnabled("BackgroundMovement",arg)
         except:
-            print('Could not modify background movement. ')
+            print 'Could not modify background movement. '
             
     """ set parts of the footgaitconfig, order is important but it does not
     have to contain each and every option (if no value found for an option
@@ -57,10 +56,10 @@ class motion_v4():
 
                     if minConfig[c][1] > inputConfig[i][1]:
                         newOption = [inputConfig[i][0], minConfig[c][1]]
-                        print('Setting', inputConfig[i][0], 'to min boundary')
+                        print 'Setting', inputConfig[i][0], 'to min boundary'
                     elif maxConfig[c][1] < inputConfig[i][1]:
                         newOption = [inputConfig[i][0], maxConfig[c][1]]
-                        print('Setting', inputConfig[i][0], 'to max boundary')
+                        print 'Setting', inputConfig[i][0], 'to max boundary'
                     i += 1
 
             newConfig.append( newOption )
@@ -808,7 +807,7 @@ class motion_v4():
             self.bellyToStand()
             self.walkTo(-0.1, -0.05, -1.5)
         else:
-            print('What the heck, I do not have a pose!')
+            print 'What the heck, I do not have a pose!'
             
     # dive towards the right (keeper)
     def diveRight(self):
@@ -868,7 +867,7 @@ class motion_v4():
             self.bellyToStand()
             self.walkTo(-0.1, 0.05, 1.5)
         else:
-            print('What the heck, I do not have a pose!')
+            print 'What the heck, I do not have a pose!'
             
     # heelball, not finished.
     def experimentalKick(self,angle):

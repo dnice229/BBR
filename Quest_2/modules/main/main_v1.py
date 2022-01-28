@@ -16,7 +16,7 @@ class main_v1:
     def start(self):
         self.globals.setProxies()
         self.motion.init()
-        # self.globals.posProxy.goToPosture('Stand', 1.0)
+        self.globals.posProxy.goToPosture('Stand', 1.0)
         self.tools.cSubscribe()
         safe =True
         finished = False
@@ -27,16 +27,7 @@ class main_v1:
                 # move forward
                 self.behaviour.wander()
                 # check for landmarks
-                blobsFound=0
-                while blobsFound != 3 :
-                    img, pos = self.tools.getSnapshot()
-                    img = self.vision.findsquare(img)
-                    blobsFound, blobList, circles = self.vision.getBlobsData(img)
-                #navigate based on landmarks
-                blobDist = self.vision.calcAvgBlobDistance(blobList)
-                center = self.vision.calcMidLandmark(blobList)
-                angle = self.vision.calcAngleLandmark(blobList)
-                signature  = self.vision.findSignature(blobList)
+                self.behaviour.lookAt()
                 turn, walk, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
                 #if we have reached a border turn according to calc direction
                 if not walk:
@@ -46,14 +37,4 @@ class main_v1:
 
 
 
-       
-
-        self.globals.motProxy.wakeUp()
-        
-
-       
-        self.behaviour.lookAround()
-
-
-        self.globals.motProxy.rest()
-        # self.tools.cUnsubscribe()
+        self.tools.cUnsubscribe()
