@@ -16,29 +16,41 @@ class main_v1:
     def start(self):
         self.globals.setProxies()
         self.motion.init()
-        # self.globals.posProxy.goToPosture('Stand', 1.0)
+        self.globals.posProxy.goToPosture('Stand', 1.0)
         self.tools.cSubscribe()
         self.sonar.sSubscribe()
         finished = False
+
+        while True:
+            self.behaviour.objectDetection()
+
+
+
+
+
+
+
+
+
         # if not reached end of maze
-        while not finished:
-            # move & check for landmarks
-            blobsFound, blobDist, angle, signature = self.behaviour.wander()
-            print('c')
+        # while not finished:
+        #     # move & check for landmarks
+        #     blobsFound, blobDist, angle, signature = self.behaviour.wander()
+        #     print('c')
 
 
-            print('blobdist')
-            turn, walk, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
-            #if we have reached a border turn according to calc direction
-            if not walk:
-                self.behaviour.turn(turn, signature)
-        self.globals.speechProxy.say('Yay, I made it')
-        fileID = self.globals.songProxy.loadFile("audio/IWon.mp3")
-        self.globals.songProcy.play(fileID, _async=True)
-        self.globals.posProxy('Sit', 1.0)
+        #     print('blobdist')
+        #     turn, walk, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
+        #     #if we have reached a border turn according to calc direction
+        #     if not walk:
+        #         self.behaviour.turn(turn, signature)
+        # self.globals.speechProxy.say('Yay, I made it')
+        # fileID = self.globals.songProxy.loadFile("audio/IWon.mp3")
+        # self.globals.songProxy.play(fileID, _async=True)
+        # self.globals.posProxy('Sit', 1.0)
 
 
 
-
+        self.sonar.sUnsubscribe()
         self.tools.cUnsubscribe()
         self.sonar.sUnsubscribe()

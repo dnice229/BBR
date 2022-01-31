@@ -138,7 +138,7 @@ class vision_v2():
             # return cv.fromarray(img)
             return img
         else:
-            print "NO CIRCLES"
+            print("NO CIRCLES")
 
 
     # Get Average Distance between multiple blobs
@@ -190,7 +190,7 @@ class vision_v2():
         return angle
 
     # Find the Signature
-    def findSignature(self,blobList):
+    def findSignature(self,blobList):                                                  # Denk dat er een optie moet zijn voor minder gevonden landmarks?
         '''
         Input: [Blue, Green, Orange]
         Output: Signature

@@ -14,7 +14,7 @@ class sonar_v2():
         try:
             self.globals.sonarProxy.unsubscribe(self.subscription_name)
         except Exception as inst:
-            print "Unsubscribing impossible:", inst
+            print("Unsubscribing impossible:", inst)
 
     #subscribe to camera
     def sSubscribe(self):

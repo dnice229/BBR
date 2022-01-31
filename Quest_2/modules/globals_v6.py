@@ -7,25 +7,36 @@
 from naoqi import qi
 import sys
 
-class globals_v4:
-    ipadress = "146.50.60.32"
+class globals_v6:
+    ipadress = "146.50.60.48"
     port = "9559"
 
     def setDependencies(self, modules):
-        self.session = qi.Session()
+
+
+        # Initialize qi framework.
+        connection_url = "tcp://" + self.ipadress + ":" + self.port
+        app = qi.Application(["BehaviorBasedRobotics",
+                          "--qi-url=" + connection_url])
         try:
-             self.session.connect("tcp://" + self.ipadress + ":" + self.port)
+             app.start()
         except RuntimeError:
              print ("Can't connect to Naoqi at ip \"" + self.ipadress + "\" on port " + self.port +".\n")
              sys.exit(1)
 
+        self.session = app.session 
+
     def setProxies(self):
         self.motProxy = self.session.service("ALMotion")
-        self.lifeProxy = self.session.service("ALAutonomousLife")
         self.posProxy = self.session.service("ALRobotPosture")
-        self.vidProxy = self.session.service("ALVideoDevice")	
+        self.vidProxy = self.session.service("ALVideoDevice")
+        self.lifeProxy = self.session.service("ALAutonomousLife")
+        self.speechProxy = self.session.service("ALTextToSpeech")
+        self.songProxy = self.session.service("ALAudioPlayer")
         self.sonarProxy = self.session.service("ALSonar")
         self.memoryProxy = self.session.service("ALMemory")
+
+	
 	
 #        self.motProxy = ALProxy("ALMotion", self.ipadress, 9559)
 #        self.posProxy = ALProxy("ALRobotPosture", self.ipadress, 9559)

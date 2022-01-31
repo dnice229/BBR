@@ -17,7 +17,7 @@ VERBOSE = 1
 #######
 
 moduledict["main"]          = "main_v1"
-moduledict["globals"]       = [1, "globals"]
+moduledict["globals"]       = [1, "globals_v6"]
 moduledict["motion"]        = [1, "motion_v6"]
 moduledict["sonar"]         = [1,"sonar_v2"]
 moduledict["tools"]         = [1, "tools_v3"]
