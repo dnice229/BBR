@@ -13,78 +13,87 @@ class behaviour_v1():
         self.tools = modules.getModule("tools")
 
     def objectDetection(self):
-        right, left = self.sonar.averageSonar()
-        ratio = left/right
-        sensitivity = 0.1
+        """
+        Input: None
+        Output: 
+            objectLocation: The location where the closest object is located
+            objectDistance: The distance that this object is located at, derived from sonars.
+        """
+        right, left = self.sonar.averageSonar()             # Get locationdata from robot's sonars
+        ratio = left/right                                  # Calculate the ratio of the sonar's distance data
+        sensitivity = 0.2                                   # Sensitivity setting for location calculation
         if ratio > 1+sensitivity:
-            # right trun
+            # An object is located on the left side
             print("object left")
             objectLocation = "left"
             objectDistance = left
         elif ratio < 1-sensitivity:
+            # An object is located on the right side
             print("object right")
             objectLocation = "right"
             objectDistance = right
             # left turn
         elif 1-sensitivity < ratio < 1+sensitivity:
+            # An object is located in front of the robot
             print("object front")
             objectLocation = "front"
-            objectDistance = (left+right)/2
-            # front
+            objectDistance = (left+right)/2                 # Average of both sonar's data for more accuracy
         return objectLocation, objectDistance
 
-    def avoid(self):
-        obstacleClose = True
-        objectLocation = self.objectDetection()
-
+    def avoid(self):    
+        """
+        Input: None
+        Output: None
+        """
+        tooClose = 0.45                                     # Value of when the robot is too close to an obstacle
+        objectLocation, objectDistance = self.objectDetection()
         # When robot is close to object
-        while objectLocation is not None:
+        while objectDistance < tooClose:
             self.globals.speechProxy.say("I am way too close")
             if objectLocation == "front":
-                # Walk backwards
-                self.globals.motProxy.setWalkTargetVelocity(-1,0,0,0.3)
-                # time.sleep(2)
+                self.globals.motProxy.moveTo(-0.1)
+                self.globals.motProxy.stopMove()
             if objectLocation == "left":
                 self.globals.motProxy.stopMove()
-                # one step left
                 self.globals.motProxy.moveTo(-0.1,0,0)
                 self.turn(-0.77, 'right')
-                self.globals.posProxy.goToPosture('StandInit', 1.0)
             if objectLocation == "right":
                 self.globals.motProxy.stopMove()
-                # one step right
                 self.globals.motProxy.moveTo(-0.1,0,0)
                 self.turn(0.77, 'left')
-                self.globals.posProxy.goToPosture('StandInit', 1.0)
-            objectLocation = self.objectDetection()
-        # Robot is not close to anything
-        if objectLocation == None:
-            obstacleClose = False
-        return obstacleClose
+            objectLocation, objectDistance = self.objectDetection()
 
     def turn(self, turn, signature):
-        print("behaviour: turn")
+        """
+        Input: 
+            turn: Radian value of the turn the robot should make
+            signature: String value that holds the type of turn
+        Output: None
+        """
         print(turn)
         self.globals.motProxy.moveTo(0,0, round(turn, 2))
         self.globals.speechProxy.say('turning'+signature)
         self.globals.posProxy.goToPosture('StandInit', 1.0)
 
-
     #React to found observations
     def calcDirection(self, blobsFound, blobDist, angle, signature):
         '''
-        Input: Stuff
-        Output: less to no stuff
-        '''
-        print("behaviour: calcDirection")
-        # 90 degrees
-        side = 1.57
-        # 180 degrees
-        back = 3.14
+        Input: 
+            blobsFound: The amount of blobs that were found in an image
+            blobDist:   The average distance between blobs
+            angle:      The angle in radians that the center of the blobs is offset to the robot's head position
+            signature:  The signature of the found clue
+        Output: 
+            turn:       The amount the robot should turn
+            walk:       Whether or not the robot should walk
+            finished:   Whether or not the robot is finsihed
+        '''         
+        side = 1.57     # 90 degrees in radians     
+        back = 3.14     # 180 degrees in radians
         turn = None
         walk = True
         finished = False
-        print(blobDist)
+        # print(blobDist)
         # Too close to landmark picture
         if blobDist> 60:
             # Stop walking
@@ -102,12 +111,13 @@ class behaviour_v1():
                     finished = True
         return turn, walk, finished
 
-    # avoid obstacles
-
-    
-
     def lookFor(self):
-        print("lookfor")
+        """
+        Input: None
+        Output:
+            blobsFound:
+            blobList:
+        """
         blobsFound = 0
         for x in range(21):
             img, pos = self.tools.getSnapshot()
@@ -120,7 +130,14 @@ class behaviour_v1():
         return blobsFound, blobList
 
     def getVisualCues(self, blobList):
-        print("behaviour: getVisualCues")
+        """
+        Input: 
+            blobList:
+        Output:
+            blobDist:
+            angle:
+            signature:
+        """
         #navigate based on landmarks
         blobDist = self.vision.calcAvgBlobDistance(blobList)
         angle = self.vision.calcAngleLandmark(blobList)
@@ -142,23 +159,27 @@ class behaviour_v1():
         #         objectlocation = None
         #         break
         #     objectLocation = self.objectDetection()
-        return blobsFound, blobDist, angle, signature
+        # return blobsFound, blobDist, angle, signature
 
     def wander(self):
-        print("behaviour: wander")
-        obstacleClose = self.avoid()
+        # print("behaviour: wander")
+        """ Iets doen dat de avoid aangeroepen wordt en zorgt dat deze functie stopt?"""
+
+
+        
+        # self.avoid()
         
 
-        print(obstacleClose)
-        while not obstacleClose:
-            obstacleClose = self.avoid()
-            # self.globals.speechProxy.say("Let's go")
-            self.globals.motProxy.setWalkTargetVelocity(0.5,0,0,0.3)
-            blobsFound, blobDist, angle, signature = self.search()
+        # print(obstacleClose)
+        # while not obstacleClose:
+        #     obstacleClose = self.avoid()
+        #     # self.globals.speechProxy.say("Let's go")
+        #     self.globals.motProxy.setWalkTargetVelocity(0.5,0,0,0.3)
+        #     blobsFound, blobDist, angle, signature = self.search()
             
 
-        self.globals.posProxy.goToPosture('StandInit', 1.0)
-        return  blobsFound, blobDist, angle, signature
+        # self.globals.posProxy.goToPosture('StandInit', 1.0)
+        # return  blobsFound, blobDist, angle, signature
 
 
 
