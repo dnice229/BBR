@@ -16,25 +16,29 @@ class main_v1:
     def start(self):
         self.globals.setProxies()
         self.motion.init()
-        self.globals.posProxy.goToPosture('Stand', 1.0)
+        # self.globals.posProxy.goToPosture('Stand', 1.0)
         self.tools.cSubscribe()
-        safe =True
+        self.sonar.sSubscribe()
         finished = False
         # if not reached end of maze
         while not finished:
-            # check safe to move forward
-            if safe:
-                # move forward
-                self.behaviour.wander()
-                # check for landmarks
-                self.behaviour.lookAt()
-                turn, walk, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
-                #if we have reached a border turn according to calc direction
-                if not walk:
-                    self.behaviour.turn(turn)
+            # move & check for landmarks
+            blobsFound, blobDist, angle, signature = self.behaviour.wander()
+            print('c')
 
-            safe = self.behaviour.avoid()
+
+            print('blobdist')
+            turn, walk, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
+            #if we have reached a border turn according to calc direction
+            if not walk:
+                self.behaviour.turn(turn, signature)
+        self.globals.speechProxy.say('Yay, I made it')
+        fileID = self.globals.songProxy.loadFile("audio/IWon.mp3")
+        audio_player_service.play(fileId, _async=True)
+        self.globals.posProxy('Sit', 1.0)
+
 
 
 
         self.tools.cUnsubscribe()
+        elf.sonar.sUnsubscribe()

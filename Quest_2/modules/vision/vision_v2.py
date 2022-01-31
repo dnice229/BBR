@@ -64,7 +64,6 @@ class vision_v2():
                 screenCnt = approx
                 found = True
                 break
-        if not found:
             return image
         #
         min_x = np.min(screenCnt[:, :, 0])
@@ -168,7 +167,6 @@ class vision_v2():
         x=0
         y=0
         for i in range(len(blobList)):
-            print(i)
             x += blobList[i][0]
             y += blobList[i][1]
         x /= len(blobList)
@@ -182,11 +180,10 @@ class vision_v2():
         Input: blobList
         Output: Angle in radians
         '''
-        print(blobList)
         if len(blobList) == 0:
             return None
         center = self.calcMidLandmark(blobList)
-        pixel = 0.00038
+        pixel = 0.0038
         center_pix = (160, 120)
         ctr_shift = (center[0]-center_pix[0]) + (center[1]-center_pix[1])
         angle =  ctr_shift * pixel

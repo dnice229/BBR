@@ -18,77 +18,128 @@ class behaviour_v1():
         Input: Stuff
         Output: less to no stuff
         '''
+        # 90 degrees
         side = 1.57
+        # 180 degrees
         back = 3.14
         turn = None
         walk = True
         finished = False
-        if blobDist < 0.73:
+        print(blobDist)
+        # Too close to landmark picture
+        if blobDist> 60:
+            # Stop walking
             walk = False
             if blobsFound > 2:
-                if signature == 'Right' or signature == 'Left':
+                # Use ladmark to know the turn to make
+                if signature == 'Right':
                     turn = angle + side
+                if signature == 'Left':
+                    turn = side - angle
                 if signature == 'Back':
                     turn = -angle + back
                 if signature =='Finish':
                     finished = True
         return turn, walk, finished
+
+
     # avoid obstacles
     def avoid(self):
-        self.sonar.sSubscribe()
-        safe = True
-        while safe:
-            left, right = self.sonar.getSonarData()
-            if left < 0.5 or right < 0.5:
-                safe = False
-        self.sonar.sUnsubscribe()
-        return safe
+        obstacleClose = True
+        objectLocation = self.objectDetection()
+        blobsFound = 0
+        blobDist =  angle =  signature = None
+        # When robot is close to object
+        while objectLocation is not None:
+            self.globals.motProxy.stopMove()
+            self.globals.speechProxy("I am way too close")
+            if objectLocation == "front":
+                while  blobsFound < 3:
+                    # Walk backwards
+                    self.globals.motProxy.setWalkTargetVelocity(-0.5,0,0.3)
+                    time.sleep(2)
+                    self.globals.posProxy.goToPosture('StandInit', 1.0)
+                    # Look for landmarks and retrieve visual cues
+                    blobsFound, blobDist, angle, signature = self.lookFor()
+                    objectLocation = self.objectDetection()
+                    # If  walked too far away from  maze wall stop and got back
+                    # to wonder
+                    if objectLocation == 'tooFar':
+                        self.globals.speechProxy("I am too far away, let's keep going")
+                        objectlocation = None
+                        break
+            if objectLocation == "left":
+                # one step left
+                self.turn(-1, 'left')
+                self.globals.posProxy.goToPosture('StandInit', 1.0)
+            if objectLocation == "right":
+                # one step right
+                self.turn(1, 'right')
+                self.globals.posProxy.goToPosture('StandInit', 1.0)
+            objectLocation = self.objectDetection()
+        # Robot is not close to anything
+        if objectLocation == None:
+            obstacleClose = False
 
-    # def lookAround(self):
-    #     self.tools.cSubscribe()
-    #     for yaw, pitch in zip([x * 0.1 for x in range(-10, 10)], [(y * 0.1)-4.5 for y in range(-10, -10)]):
-    #         print(yaw, pitch)
-    #         self.motion.setHead(yaw, pitch)
-    #         time.sleep(0.5)
-    #         # self.tools.SaveImage("pitch.jpg",img)
-            # time.sleep(0.1)
+        return obstacleClose, blobsFound, blobDist, angle, signature
 
-        # self.tools.cUnsubscribe()
+    def objectDetection(self):
+        left, right = self.sonar.averageSonar()
+        tooClose = 0.45
+        tooFar = 1.2
+        if left < tooClose and right < tooClose:
+            objectLocation = "front"
+        if left < tooClose and right > tooClose:
+            objectLocation = "left"
+        if left > tooClose and right < tooClose:
+            objectLocation = "right"
+        if left > tooFar or  right > tooFar:
+            objectLocation = 'tooFar'
+        if left > tooClose and right > tooClose:
+            objectLocation = None
 
-    def lookAt(self):
-        self.tools.cSubscribe()
-        blobsFound=0
-        yaw = pitch = -1
+        print("objectLocation: "+str(objectLocation))
+        return objectLocation
 
-        while blobsFound != 3 :
+    def lookFor(self):
+        blobsFound = 0
+        pitch = -4.5
+        yaw = 0.
+        print('f')
+        for x in range(0,21):
             img, pos = self.tools.getSnapshot()
             img = self.vision.findsquare(img)
             blobsFound, blobList, circles = self.vision.getBlobsData(img)
-            if blobsFound < 3:
-                pitchm= pitch-4.5
-                self.motion.setHead(yaw, pitchm)
-                self.tools.SaveImage("img"+str(yaw)+"_"+str(pitch)+".jpg",img)
-                time.sleep(0.5)
-                yaw += 0.1
-                pitch += 0.1
-
-
+            yaw = round(3*np.sin(5*x),2)
+            self.motion.setHead(yaw,pitch)
         #navigate based on landmarks
         blobDist = self.vision.calcAvgBlobDistance(blobList)
         center = self.vision.calcMidLandmark(blobList)
         angle = self.vision.calcAngleLandmark(blobList)
         signature  = self.vision.findSignature(blobList)
         print(signature)
-        self.tools.cUnsubscribe()
         return blobsFound, blobDist, angle, signature
 
+
+
+
     def wander(self):
-        self.globals.motProxy.setWalkTargetVelocity(1,0,0,0.6)
-        time.sleep(10)
-        self.globals.motProxy.stopMove()
-    def turn(self, turn):
-        self.globals.posProxy.goToPosture('StandInit')
-        self.globals.motProxy.moveTo(0,0, turn)
-        self.globals.posProxy.goToPosture('StandInit')
+        obstacleClose, blobsFound, blobDist, angle, signature = self.avoid()
+        print(obstacleClose)
+        while not obstacleClose:
+            self.globals.speechProxy("Let's go")
+            self.globals.motProxy.setWalkTargetVelocity(0.5,0,0,0.3)
+
+            obstacleClose, blobsFound, blobDist, angle, signature = self.avoid()
+
+        self.globals.posProxy.goToPosture('StandInit', 1.0)
+        return  blobsFound, blobDist, angle, signature
+        # self.globals.motProxy.stopMove()
+
+    def turn(self, turn, signature):
+        print(turn)
+        self.globals.motProxy.moveTo(0,0, round(turn, 2))
+        self.globals.speechProxy.say('turning'+signature)
+        self.globals.posProxy.goToPosture('StandInit', 1.0)
     # def remember(self):
     #     self.globals.memoryProxy

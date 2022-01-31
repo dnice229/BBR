@@ -25,6 +25,7 @@ class globals:
         self.vidProxy = self.session.service("ALVideoDevice")
         self.lifeProxy = self.session.service("ALAutonomousLife")
         self.speechProxy = self.session.service("ALTextToSpeech")
+        self.songProxy = self.session.service("ALAudioPlayer")
 
         # self.motProxy = ALProxy("ALMotion", self.ipadress, 9559)
         # self.posProxy = ALProxy("ALRobotPosture", self.ipadress, 9559)
