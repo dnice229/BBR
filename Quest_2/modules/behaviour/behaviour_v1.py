@@ -31,11 +31,12 @@ class behaviour_v1():
             # Stop walking
             walk = False
             if blobsFound > 2:
-                # Use ladmark to know the turn to make
+                # Use landmark to know the turn to make
                 if signature == 'Right':
-                    turn = angle + side
-                if signature == 'Left':
                     turn = side - angle
+                if signature == 'Left':
+                    turn = -side - angle
+        for x in rang
                 if signature == 'Back':
                     turn = -angle + back
                 if signature =='Finish':
@@ -45,7 +46,7 @@ class behaviour_v1():
 
     # avoid obstacles
     def avoid(self):
-        obstacleClose = True
+        obstacleClose = NotFound = True
         objectLocation = self.objectDetection()
         blobsFound = 0
         blobDist =  angle =  signature = None
@@ -54,13 +55,11 @@ class behaviour_v1():
             self.globals.motProxy.stopMove()
             self.globals.speechProxy("I am way too close")
             if objectLocation == "front":
-                while  blobsFound < 3:
+                while NotFound:
                     # Walk backwards
                     self.globals.motProxy.setWalkTargetVelocity(-0.5,0,0.3)
                     time.sleep(2)
-                    self.globals.posProxy.goToPosture('StandInit', 1.0)
                     # Look for landmarks and retrieve visual cues
-                    blobsFound, blobDist, angle, signature = self.lookFor()
                     objectLocation = self.objectDetection()
                     # If  walked too far away from  maze wall stop and got back
                     # to wonder
@@ -108,19 +107,35 @@ class behaviour_v1():
         print('f')
         for x in range(0,21):
             img, pos = self.tools.getSnapshot()
-            img = self.vision.findsquare(img)
+            img = self.vision.findSquare(img)
             blobsFound, blobList, circles = self.vision.getBlobsData(img)
+            if blobsFound > 2:
+                break
             yaw = round(3*np.sin(5*x),2)
+            pitch = round(0.5*np.sin((np.pi/10)*x)-4.5,2)
             self.motion.setHead(yaw,pitch)
+        return blobsFound, blobList
+
+    def getVisualCues(self, blobList):
         #navigate based on landmarks
         blobDist = self.vision.calcAvgBlobDistance(blobList)
-        center = self.vision.calcMidLandmark(blobList)
         angle = self.vision.calcAngleLandmark(blobList)
         signature  = self.vision.findSignature(blobList)
         print(signature)
+        return blobDist, angle, signature
+
+    def search(self):
+        blobsFound = 0
+        objectLocation = self.objectDetection()
+        while blobsFound < 3:
+            blobsFound, blobList = self.lookFor()
+            blobDist, angle, signature = self.getVisualCues(blobList)
+            if objectLocation == 'tooFar':
+                self.globals.speechProxy("I am too far away, let's keep going")
+                objectlocation = None
+                break
+            objectLocation = self.objectDetection()
         return blobsFound, blobDist, angle, signature
-
-
 
 
     def wander(self):
@@ -129,8 +144,8 @@ class behaviour_v1():
         while not obstacleClose:
             self.globals.speechProxy("Let's go")
             self.globals.motProxy.setWalkTargetVelocity(0.5,0,0,0.3)
-
             obstacleClose, blobsFound, blobDist, angle, signature = self.avoid()
+            blobsFound, blobDist, angle, signature = self.search()
 
         self.globals.posProxy.goToPosture('StandInit', 1.0)
         return  blobsFound, blobDist, angle, signature

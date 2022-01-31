@@ -36,7 +36,7 @@ class vision_v2():
 
     # Find square in a filtered image
     # Find square in a filtered image
-    def findsquare(self,imgMat):
+    def findSquare(self,imgMat):
         '''
         Input: Infiltered image matrix
         Return: Masked background and unmasked paper

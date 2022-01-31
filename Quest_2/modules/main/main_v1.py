@@ -34,11 +34,11 @@ class main_v1:
                 self.behaviour.turn(turn, signature)
         self.globals.speechProxy.say('Yay, I made it')
         fileID = self.globals.songProxy.loadFile("audio/IWon.mp3")
-        audio_player_service.play(fileId, _async=True)
+        self.globals.songProcy.play(fileID, _async=True)
         self.globals.posProxy('Sit', 1.0)
 
 
 
 
         self.tools.cUnsubscribe()
-        elf.sonar.sUnsubscribe()
+        self.sonar.sUnsubscribe()
