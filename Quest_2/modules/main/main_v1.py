@@ -22,8 +22,8 @@ class main_v1:
         finished = False
 
         while True:
-            self.behaviour.objectDetection()
-
+            self.behavior.wander()
+            self.
 
 
 

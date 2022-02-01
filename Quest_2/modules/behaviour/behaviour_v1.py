@@ -146,25 +146,28 @@ class behaviour_v1():
         return blobDist, angle, signature
 
     def search(self):
-        print("behaviour: search")
+        # print("behaviour: search")
 
 
-        # blobsFound = 0
-        # objectLocation = self.objectDetection()
-        # while blobsFound < 3:
-        #     blobsFound, blobList = self.lookFor()
-        #     blobDist, angle, signature = self.getVisualCues(blobList)
-        #     if objectLocation == 'tooFar':
-        #         self.globals.speechProxy("I am too far away, let's keep going")
-        #         objectlocation = None
-        #         break
-        #     objectLocation = self.objectDetection()
-        # return blobsFound, blobDist, angle, signature
+        blobsFound = 0
+        objectLocation = self.objectDetection()
+        while blobsFound < 3:
+            blobsFound, blobList = self.lookFor()
+            blobDist, angle, signature = self.getVisualCues(blobList)
+            if objectLocation == 'tooFar':
+                self.globals.speechProxy("I am too far away, let's keep going")
+                objectlocation = None
+                break
+            objectLocation = self.objectDetection()
+        return blobsFound, blobDist, angle, signature
 
     def wander(self):
         # print("behaviour: wander")
         """ Iets doen dat de avoid aangeroepen wordt en zorgt dat deze functie stopt?"""
 
+        self.globals.motProxy.setWalkTargetVelocity(0.5,0,0,0.3)
+        while self.globals.motProxy.moveIsActive():
+            self.avoid()
 
         
         # self.avoid()
