@@ -21,33 +21,23 @@ class main_v1:
         self.sonar.sSubscribe()
         finished = False
 
-        while True:
+        while not finished:
             self.behavior.wander()
-            self.
+            blobsFound, blobDist, angle, signature = self.behaviour.search()
+            turn, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
+            objectLocation, objectDistance = self.behaviour.objectLocation()
+            #if we have reached a border turn according to calc direction
+            if objectDistance<0.7:
+                self.behaviour.turn(turn, signature)
+            time.sleep(3)
 
 
 
 
-
-
-
-
-        # if not reached end of maze
-        # while not finished:
-        #     # move & check for landmarks
-        #     blobsFound, blobDist, angle, signature = self.behaviour.wander()
-        #     print('c')
-
-
-        #     print('blobdist')
-        #     turn, walk, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
-        #     #if we have reached a border turn according to calc direction
-        #     if not walk:
-        #         self.behaviour.turn(turn, signature)
-        # self.globals.speechProxy.say('Yay, I made it')
-        # fileID = self.globals.songProxy.loadFile("audio/IWon.mp3")
-        # self.globals.songProxy.play(fileID, _async=True)
-        # self.globals.posProxy('Sit', 1.0)
+        self.globals.speechProxy.say('Yay, I made it')
+        fileID = self.globals.songProxy.loadFile("audio/IWon.mp3")
+        self.globals.songProxy.play(fileID, _async=True)
+        self.globals.posProxy('Sit', 1.0)
 
 
 
