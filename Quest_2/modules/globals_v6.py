@@ -8,7 +8,7 @@ from naoqi import qi
 import sys
 
 class globals_v6:
-    ipadress = "146.50.60.48"
+    ipadress = "146.50.60.32"
     port = "9559"
 
     def setDependencies(self, modules):
