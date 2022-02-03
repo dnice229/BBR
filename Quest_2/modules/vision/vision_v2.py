@@ -31,6 +31,8 @@ class vision_v2():
 
         resultImg = cv2.inRange(img, min_scal, max_scal)
         resultImg = cv2.blur(resultImg, (2, 2))
+        # self.tools.SaveImage("resultjhbbe.jpg", resultImg)
+        cv2.imwrite("name.jpg", resultImg)
 
         return resultImg
 
@@ -46,8 +48,8 @@ class vision_v2():
         found = False
         # make image greyscale, blur, find edges
         grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        thresh = cv2.adaptiveThreshold(grayscale_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-
+        blur = cv2.GaussianBlur(grayscale_image.copy(), (9, 9), 0)
+        thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
         # find contours in the threshed image, keep only the largest
         # ones
         cnts = cv2.findContours(
@@ -111,15 +113,17 @@ class vision_v2():
         Input: Image
         Return: numberOfBlobsFound , [List [center-pixels] of blobs]
         '''
-        red = np.array([33,75, 194])
-        blue = np.array([159, 59, 25])
-        green = np.array([32, 111, 44])
+        red = [np.array([0,50,50]),np.array([20,255,255])]
+        blue = [np.array([90,40,40]),np.array([140,255,255])]
+        green = [np.array([36,50,50]),np.array([86,255,255])]
         colors = [blue, green, red]
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         circles = []
         blobList = []
+        filteredImageAll = [] # for writing image
         # Make detect circles
         for color in colors:
-            filteredImage = self.filterImage(image, color-25, color+25)
+            filteredImage = self.filterImage(image, color[0], color[1])
             circleImage = self.findCircle(filteredImage)
             if circleImage is not None:
                 blobList.append((circleImage[0][0], circleImage[0][1]))

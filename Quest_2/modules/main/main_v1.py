@@ -21,10 +21,17 @@ class main_v1:
         self.sonar.sSubscribe()
         finished = False
 
-        while True:
-            self.behavior.wander()
-            self.
+        while not finished:
+            
+            
+            self.behaviour.wander()
+            blobsFound, blobDist, angle, signature = self.behaviour.search()
+            print(blobsFound, blobDist, angle, signature)
+            turn, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
 
+            objectLocation, objectDistance = self.behaviour.objectDetection()
+            if objectDistance<0.7 and turn is not None:
+                self.behaviour.turn(turn, signature)
 
 
 
