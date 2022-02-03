@@ -30,8 +30,8 @@ class main_v1:
             blobsFound, blobDist, angle, signature = self.behaviour.search()
             print("signature: "+str(signature))
             turn, finished = self.behaviour.calcDirection(blobsFound, blobDist, angle, signature)
-
             if turn is not None:
+                self.globals.speechProxy.say('turning'+signature)
                 self.behaviour.turn(turn, signature)
 
 
