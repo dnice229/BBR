@@ -130,7 +130,7 @@ class vision_v2():
 
             filteredImageAll.append(filteredImage) # for writing image
 
-            circleImage = self.findCircle(filteredImage) 
+            circleImage = self.findCircle(filteredImage)
 
             if circleImage is not None:
                 blobList.append((circleImage[0][0], circleImage[0][1]))
@@ -230,13 +230,13 @@ def maskSquare(self, img):
     lower_white = np.array([0,0,230])
     upper_white = np.array([255,5,255])
     mask = cv2.inRange (hsv, lower_white, upper_white)
-    
+
     contours = cv2.findContours(mask.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     if len(contours) > 0:
         white_area = max(contours, key=cv2.contourArea)
         x, y, w, h = cv2.boundingRect(white_area)
-        
+
 
     for xval in range(0,320):
         for yval in range(0,240):
@@ -260,10 +260,10 @@ def imageCorrection(self, image,alpha,beta,gamma):
     blur = cv2.pyrMeanShiftFiltering(image, 11, 21)
 
     contrast_image = cv2.convertScaleAbs(blur, alpha=alpha, beta=beta)
-    
+
     lookUpTable = np.empty((1,256), np.uint8)
     for i in range(256):
         lookUpTable[0,i] = np.clip(pow(i / 255.0, gamma) * 255.0, 0, 255)
     result = cv2.LUT(contrast_image, lookUpTable)
 
-    return result    
+    return result
